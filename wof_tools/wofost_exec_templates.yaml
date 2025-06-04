@@ -1,0 +1,13 @@
+agromanage: |
+    AgroManagement:
+    - {date_campaign}:
+        CropCalendar:
+          crop_name: {crop}
+          variety_name: {variety}
+          crop_start_date: {crop_start}
+          crop_start_type: sowing
+          crop_end_date: {crop_end}
+          crop_end_type: harvest
+          max_duration: 330
+        StateEvents: null
+        TimedEvents: null
