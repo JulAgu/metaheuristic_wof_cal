@@ -81,7 +81,7 @@ def wof_one_simulation(params_row,
 
 
 if __name__ == "__main__":
-    with open("src/sims_setup.pickle", 'rb') as f:
+    with open("src/sims_setup_100_obs.pickle", 'rb') as f:
         sims_data = pickle.load(f)
     simulations = sims_data.to_dict(orient="records")
     print(f"Total simulations to run: {len(simulations)}")
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             delayed(wof_one_simulation)(params_row, wofost_data_path="wofost_data/", output_path="output") for params_row in simulations
         )
     answ = pd.DataFrame(results, columns=["id", "TWSO", "TAGP", "DOH"])
-    answ.to_pickle("output/base_wofost.pkl")
-    answ.to_csv("output/base_wofost.csv", index=False)
+    answ.to_pickle("output/base_wofost_test.pkl")
+    answ.to_csv("output/base_wofost_test.csv", index=False)
     print(answ)
 

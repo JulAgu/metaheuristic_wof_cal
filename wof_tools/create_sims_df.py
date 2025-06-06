@@ -59,6 +59,7 @@ def generate_simulations_df(plots_df_path):
     print(f"Actual simulations to run: {len(sims)//4}")
     index_list = random.choices(range(len(sims)), k=len(sims)//4)
     sims = sims.iloc[index_list, :]
+    # sims = sims.iloc[:100, :]  # For testing purposes, only 100 simulations
     ## END TODO
     with open("src/sims_setup.pickle", "wb") as f:
         pickle.dump(obj=sims, file=f)

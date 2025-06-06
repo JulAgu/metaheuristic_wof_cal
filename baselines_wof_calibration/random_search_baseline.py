@@ -8,7 +8,7 @@ import tqdm as tqdm
 from joblib import Parallel, delayed
 from joblib_progress import joblib_progress
 from tqdm import tqdm
-from wof_tools.wof_ea_interface import get_ranges
+from wof_tools.wof_ea_interface import set_up_problem, WofostTranslator
 from wof_tools.wofost_exec import wof_one_simulation
 
 #TODO: This dictionary is present in multiple scripts
@@ -21,44 +21,7 @@ initial_values = {"wheat": {"TSUM1": 706, "TSUM2": 975},
                   "rapeseed": {"TSUM1": 240, "TSUM2": 600},
                   "millet": {"TSUM1": 772, "TSUM2": 483},
                    }
-
-
-def set_up_problem():
-    """
-    Creates the problem dictionaries for sensitivity analysis.
-    """
-    RANGES_VAR = {
-                  "TSUM1": (100, 2000),
-                  "TSUM2": (100, 2000),
-                #   "SPAN":  (10, 70),
-                #   "CFET": (0.1, 1.0),
-                #   "CVL": (0.1, 1.0),
-                #   "CVO": (0.1, 1.0),
-                #   "CVR": (0.1, 1.0),
-                #   "CVS": (0.1, 1.0),
-                #   "TBASE": (0, 15),
-                #   "TBASEM": (0, 15),
-                #   "VERNBASE": (5, 15),
-                #   "RDI": (9, 11),
-                #   "RDMCR": (60, 300),
-                #   "RGRLAI": (0.001, 0.8),
-                  }
-
-    RANGES_SOIL = {
-                #    "K0": (10, 100),
-                #    "SOPE": (0.2, 15),
-                #    "KSUB": (0.1, 30),
-                #    "RDMSOL": (90, 150),
-                   }
-    
-    problem = {
-        "num_vars": len(RANGES_VAR) + len(RANGES_SOIL),
-        "names": list(RANGES_VAR.keys()) + list(RANGES_SOIL.keys()),
-        "bounds": [list(bounds) for bounds in RANGES_VAR.values()] + [list(bounds) for bounds in RANGES_SOIL.values()]
-        }
- 
-    return problem
-
+traductor = WofostTranslator()
 
 def random_generator(ranges):
     """
@@ -85,11 +48,12 @@ def random_searcher(row, problem, n_iterations=1000):
 
     crop = row["crop"]
     candidates = [list(initial_values[crop].values())]
-    ranges = [get_ranges(i) for i in initial_values[crop].keys()]
+    ranges = traductor.ranges
     next_candidates = [random_generator(ranges) for _ in range(n_iterations-1)]
     candidates.extend(next_candidates)
 
     # with joblib_progress(description ="Parallel process track..."):
+    #TODO: Try the parallelization over the plots not the candidates. This improves the performance?
     results = Parallel(n_jobs=60)(delayed(evaluate_one)(cand) for cand in candidates)
     results.sort(key=lambda x: x[1])
     best_candidate, best_fitness = results[0]
