@@ -61,7 +61,7 @@ class WofostTranslator:
         """
         Get the min and max values of a parameter from the ranges dictionary.
         """
-        #TODO: In the future we will have to add the other parameters as a function of a sensitivity analysis.
+        #TODO: In the future we will have to add the other parameters depeding on the results of the sensitivity analysis.
         if parameter in self.ranges_dic:
             return self.ranges_dic[parameter]
         else:
