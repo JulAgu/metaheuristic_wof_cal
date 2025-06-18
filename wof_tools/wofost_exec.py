@@ -73,7 +73,7 @@ def wof_one_simulation(params_row,
         else:
             return params_row["id"], crop_cycle["TWSO"], crop_cycle["TAGP"], crop_cycle["DOH"]
     except Exception as e:
-        print(f"Simulation failed for {params_row['id']}: {e}") #TODO: How to handle erros during optimizaiton algorithms?
+        print(f"Simulation failed for {params_row['id']}: {e}") #TODO: How to handle errors during optimization?
         if override_params_mode:
             return None
         else:
