@@ -16,12 +16,13 @@ from pcse.models import Wofost73_WLP_CWB, Wofost73_PP
 from SALib.sample import saltelli
 from joblib import Parallel, delayed, effective_n_jobs
 from joblib_progress import joblib_progress
-from SALib.analyze import sobol
+from SALib.analyze import sobol as sobol_analyze
+from SALib.sample import sobol as sobol_sample
 import pickle
 import yaml
 
 def set_up_full_problem(calc_second_order=False,
-                        n_samples= 50):
+                        n_samples= 32):
     """
     Creates the problem dictionaries for sensitivity analysis.
     """
@@ -56,7 +57,7 @@ def set_up_full_problem(calc_second_order=False,
         "bounds": [list(bounds) for bounds in RANGES_VAR.values()] + [list(bounds) for bounds in RANGES_SOIL.values()]
         }
 
-    paramsets = saltelli.sample(problem, n_samples, calc_second_order=calc_second_order)
+    paramsets = sobol_sample.sample(problem, n_samples, calc_second_order=calc_second_order)
     print(f"Generated {len(paramsets)} parameter sets for sensitivity analysis.")
 
     return problem, paramsets
@@ -151,7 +152,7 @@ if __name__ == "__main__":
 
     with open("src/sims_setup.pickle", 'rb') as f:
         sims_data = pickle.load(f)
-    simulations = sims_data.to_dict(orient="records")
+    simulations = sims_data[:50].to_dict(orient="records")
 
     with joblib_progress(description ="Parallel process track...",
                              total=len(simulations)):
@@ -160,7 +161,7 @@ if __name__ == "__main__":
 
     all_problems, all_results = zip(*outputs)
 
-    sensitivity_results = [sobol.analyze(problem, results, calc_second_order=True) for problem, results in zip(all_problems, all_results)]
+    sensitivity_results = [sobol_analyze.analyze(problem, results, calc_second_order=True) for problem, results in zip(all_problems, all_results)]
     Si = mean_sobol_indices(sensitivity_results)
     problem = all_problems[0]
     with open("sensitivity_results.pkl", "wb") as f:

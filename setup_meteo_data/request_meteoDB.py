@@ -70,8 +70,8 @@ def merge_export_df(silos_df, weather_df, output_file):
 
 def by_year_query_wrapper(year):
     df_silos = query_silos_df()
-    df_weather = query_weather_df(initial_date = f"{year-1}-01-01",
-                                  final_date = f"{year}-12-31")
+    df_weather = query_weather_df(initial_date = f"{year-2}-01-01",
+                                  final_date = f"{year+1}-06-06")
     merge_export_df(df_silos, df_weather,
                     "src/raw_data/multi_meteo/Agrial_meteo_{}_{}.parquet".format(year, date.today().strftime("%d.%m.%Y")))
 # if __name__ == "__main__":

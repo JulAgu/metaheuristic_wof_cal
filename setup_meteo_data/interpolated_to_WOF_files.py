@@ -40,20 +40,20 @@ def plots_coords_to_WOFcsv(df_plot):
     plot_info = {"ID": plot_id[0], "LON": lon[0], "LAT": lat[0], "ELEV": 30} # It shoul be awesome to have a real elevation here
     return df_pcse, plot_info
 
-def fill_csv(year, plot_id, plot_info, df_psce, base_template):
+def fill_csv(plot_id, plot_info, df_pcse, base_template):
     rows = [[row[0].format(plot_id)] if '{}' in row[0] else [row[0]] for row in base_template]
     rows.append([f"Longitude = {plot_info['LON']}; Latitude = {plot_info['LAT']}; Elevation = {plot_info['ELEV']}; AngstromA = 0.18; AngstromB = 0.55; HasSunshine = False"])
     rows.append(["## Daily weather observations (missing values are NaN)"])
-    rows.append(list(df_psce.columns))
-    rows.extend(df_psce.astype(str).values.tolist())
+    rows.append(list(df_pcse.columns))
+    rows.extend(df_pcse.astype(str).values.tolist())
 
     out_path = f"wofost_data/meteo_data/{plot_id}.csv"
     with open(out_path, "w", newline='') as f:
         csv.writer(f).writerows(rows)
 
-def process_and_write(plot_id, df_plot, year, base_template):
-    df_psce, plot_info = plots_coords_to_WOFcsv(df_plot)
-    fill_csv(year, plot_id, plot_info, df_psce, base_template)
+def process_and_write(plot_id, df_plot, base_template):
+    df_pcse, plot_info = plots_coords_to_WOFcsv(df_plot)
+    fill_csv(plot_id, plot_info, df_pcse, base_template)
 
 if __name__ == "__main__":
     print("Using all CPU cores:", effective_n_jobs(-1))
@@ -75,6 +75,6 @@ if __name__ == "__main__":
 
         with joblib_progress(description="Parallel processing...", total=len(grouped)):
             Parallel(n_jobs=-1)(
-                delayed(process_and_write)(plot_id, group.reset_index(), year, base_template)
+                delayed(process_and_write)(plot_id, group.reset_index(), base_template)
                 for plot_id, group in grouped
             )
